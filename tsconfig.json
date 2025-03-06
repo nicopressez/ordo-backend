@@ -1,9 +1,10 @@
 {
     "compilerOptions": {
-      "module": "CommonJS",
-      "target": "ESNext",
-      "outDir": "./dist",
-      "rootDir": "./",
-      "strict": true
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "ES6",
+        "outDir": "./dist",
+        "rootDir": "./",
+        "strict": true
     }
   }
