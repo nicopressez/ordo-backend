@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const mongoDB = process.env.DATABASE;
 
-function mongoSetup() {
+export default function mongoSetup() {
 
     mongoose.set("strictQuery", false);
     
@@ -13,4 +13,3 @@ function mongoSetup() {
     }
 }
 
-module.exports = mongoSetup;

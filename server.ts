@@ -1,13 +1,21 @@
-const dotenv = require("dotenv").config();
-const express = require("express");
-const port = process.env.PORT;
+import * as dotenv from "dotenv"
+dotenv.config();
+import express from "express";
+import mongoSetup from "./mongoConfig";
+
+import authRouter from "./routes/auth"
 
 const app = express();
-const cors = require("cors")
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-const mongoSetup = require("./mongoConfig");
 mongoSetup();
 
+const port = process.env.PORT;
+
+//Routes
+
+app.use("/auth", authRouter)
 
 app.listen(port, () => {
     console.log(`Server started on port ${port}`)
