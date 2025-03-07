@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const mongoDB = process.env.DATABASE;
+import mongoose from "mongoose";
+const mongoDB = process.env.DATABASE as string;
 
 export default function mongoSetup() {
 
