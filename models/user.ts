@@ -5,8 +5,8 @@ const Schema = mongoose.Schema
 const UserSchema = new Schema({
 
     name: { type: String, minLength: 3, maxLength: 16, required:true },
-    email : { type: String, minlength: 5, required:true, unique:true },
-    password: { type: String, required:true },
+    email : { type: String, minLength: 5, required:true, unique:true },
+    password: { type: String, minLength: 8, required:true },
     schedules: [{ type: Schema.Types.ObjectId, ref: "Schedule" }],
     preferences: {
         sleep: {

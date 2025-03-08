@@ -4,6 +4,7 @@ import express from "express";
 import session from "express-session"
 import mongoSetup from "./mongoConfig";
 import cors from "cors"
+import cookieParser from "cookie-parser"
 
 import authRouter from "./routes/auth"
 
@@ -11,6 +12,7 @@ const port = process.env.PORT;
 
 const app = express();
 app.use(cors());
+app.use(cookieParser())
 
 mongoSetup();
 
