@@ -1,9 +1,10 @@
 import User from "../models/user"
 import asyncHandler from "express-async-handler"
 import { body, validationResult } from "express-validator"
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 
 export const signup = [
-    
     //API request validations
     body("email")
         .trim()
@@ -30,23 +31,28 @@ export const signup = [
             return true
         }),
 
-    //Validate request body 
-    
     asyncHandler(async(req,res,next) => {
+        //Validate request body 
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
             res.status(400).json({errors: errors.array()})
         }
-        next()
+        const hashedPassword = await bcrypt.hash(req.body.password, 10)
+
+        // Register new user with form info
+        const user = new User({
+            email: req.body.email,
+            name: req.body.name,
+            password: hashedPassword
+        })
+
+        await user.save();
+        //Return login token - user logged in after signup
+        const token = jwt.sign(
+            {user}, process.env.SECRET as string,
+            {expiresIn: "24h"});
+        res.status(200).json({token})
     }),
-
-    
-
-    asyncHandler(async(req,res, next) => {
-        // API body cleans data, encrypt password JWT, creates user
-        // Sends back JWT Token 
-        res.status(200).json({ message: "Signup post"})
-    })
 ]
 
 export const login = [
