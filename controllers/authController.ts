@@ -3,6 +3,7 @@ import asyncHandler from "express-async-handler"
 import { body, validationResult } from "express-validator"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import passport from "../utils/passport"
 
 export const signup = [
     //API request validations
@@ -56,8 +57,37 @@ export const signup = [
 ]
 
 export const login = [
+    body("email", "Invalid email")
+        .trim()
+        .isLength({min: 5}),
+    body("password", "Invalid password")
+        .trim()
+        .isLength({min: 8}),
     asyncHandler(async(req,res, next) => {
-        res.status(200).json({ message: "Login post"})        
+        //Validate request body
+        const errors= validationResult(req)
+        if(!errors.isEmpty()) {
+            res.status(400).json({errors: errors.array()})
+        }
+
+        //Initiate login && handle errors
+        passport.authenticate("local", {session: false}, 
+            (err: any,user: Express.User | false, info: {message:string}) => {
+            if(err || !user) {
+                return res.status(401).json({info})
+            }
+
+            req.logIn(user, (err) => {
+                if(err) return next(err)
+            })
+
+            //Generate JWT token
+            const token = jwt.sign(
+                {user}, process.env.SECRET as string,
+                {expiresIn: "24h"}
+            )
+            return res.status(200).json({token})
+        })(req,res,next)
     })
 ]
 

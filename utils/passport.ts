@@ -10,6 +10,7 @@ type User = {
 };
 
 passport.use(new LocalStrategy(
+    {usernameField: "email"},
     async (email, password, done) => {
         try{
             // Check DB for user with email
@@ -19,7 +20,7 @@ passport.use(new LocalStrategy(
             }
 
             // Check password match
-            const match = bcrypt.compare(password, user.password);
+            const match = await bcrypt.compare(password, user.password);
             if (!match) {
                 return done(null,false, {message: "No user found with this email and password combination."})
             }
