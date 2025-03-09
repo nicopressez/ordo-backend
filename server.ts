@@ -5,17 +5,18 @@ import session from "express-session"
 import mongoSetup from "./mongoConfig";
 import cors from "cors"
 import cookieParser from "cookie-parser"
-
+import morgan from "morgan"
 import authRouter from "./routes/auth"
 
 const port = process.env.PORT;
 
 const app = express();
-app.use(cors());
-app.use(cookieParser())
 
 mongoSetup();
 
+app.use(morgan('dev'));
+app.use(cors());
+app.use(cookieParser())
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
