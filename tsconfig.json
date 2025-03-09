@@ -5,6 +5,8 @@
         "target": "ES6",
         "outDir": "./dist",
         "rootDir": "./",
-        "strict": true
-    }
+        "strict": true,
+        "typeRoots": ["./node_modules/@types", "/types"] 
+        
+    },
   }

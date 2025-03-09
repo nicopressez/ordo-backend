@@ -2,11 +2,14 @@
   "name": "ordo-backend",
   "jest": {
     "testPathIgnorePatterns": [
-      "/node/modules",
+      "/node_modules/",
       "/__tests__/testSetup.ts",
       "/__tests__/mongoSetup.ts"
     ]
   },
+  "modulePathIgnorePatterns": [
+    "<rootDir>/node_modules/"
+  ],
   "version": "1.0.0",
   "description": "",
   "main": "server.ts",

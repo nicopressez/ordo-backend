@@ -50,7 +50,8 @@ export const signup = [
         await user.save();
         //Return login token - user logged in after signup
         const token = jwt.sign(
-            {user}, process.env.SECRET as string,
+            {user, iat: Date.now()},
+            process.env.SECRET as string,
             {expiresIn: "24h"});
         res.status(200).json({token})
     }),
@@ -83,16 +84,11 @@ export const login = [
 
             //Generate JWT token
             const token = jwt.sign(
-                {user}, process.env.SECRET as string,
+                {user, iat:Date.now()}, 
+                process.env.SECRET as string,
                 {expiresIn: "24h"}
             )
             return res.status(200).json({token})
         })(req,res,next)
-    })
-]
-
-export const token = [
-    asyncHandler(async(req,res, next) => {
-        res.status(200).json({ message: "Token request"})        
     })
 ]

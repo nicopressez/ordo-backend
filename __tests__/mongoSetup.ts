@@ -21,6 +21,8 @@ export const initializeMongoServer = async() => {
 }
 
 export const closeMongoServer = async() => {
+    if (mongoServer) {
     await mongoose.disconnect();
     await mongoServer.stop()
+    }
 }
