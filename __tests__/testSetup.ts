@@ -2,7 +2,6 @@ import * as dotenv from "dotenv"
 dotenv.config()
 import express from "express";
 import session from "express-session"
-import { initializeMongoServer } from "./mongoSetup";
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import morgan from "morgan"
@@ -26,6 +25,8 @@ export const setup = () => {
     //Passport setup
     app.use(passport.initialize());
     app.use(passport.session());
+
+    return app
 }
 
 
