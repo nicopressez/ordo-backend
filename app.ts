@@ -6,9 +6,10 @@ import mongoSetup from "./mongoConfig";
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import morgan from "morgan"
+
 import authRouter from "./routes/auth"
 
-const port = process.env.PORT;
+const port = process.env.PORT || 3000
 
 const app = express();
 
@@ -34,10 +35,10 @@ app.use(passport.session());
 
 //Routes
 
-app.use("/auth", authRouter)
-
 app.listen(port, () => {
-    console.log(`Server started on port ${port}`)
-})
+  console.log(`Server is running on port ${port}`);
+});
+
+app.use("/auth", authRouter)
 
 
