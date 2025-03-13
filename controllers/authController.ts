@@ -92,3 +92,11 @@ export const login = [
         })(req,res,next)
     })
 ]
+
+export const tokenRefresh = 
+    asyncHandler(async(req,res,next) => {
+        if(req.token) res.status(200).json({token: req.token})
+        else res.status(400).json({message: "Invalid token"})
+    })
+    
+
