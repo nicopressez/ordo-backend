@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser"
 import morgan from "morgan"
 
 import authRouter from "./routes/auth"
+import userRouter from "./routes/user"
 
 const port = process.env.PORT || 3000
 
@@ -40,5 +41,6 @@ app.listen(port, () => {
 });
 
 app.use("/auth", authRouter)
+app.use("/user", userRouter)
 
 

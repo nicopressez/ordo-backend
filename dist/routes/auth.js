@@ -47,10 +47,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const authController = __importStar(require("../controllers/authController"));
+const tokenVerif_1 = require("../utils/tokenVerif");
 const router = express_1.default.Router();
 router.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     res.status(200).json({ message: "auth route" });
 }));
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
+router.post('/token', tokenVerif_1.verifyRefreshToken, authController.tokenRefresh);
 exports.default = router;

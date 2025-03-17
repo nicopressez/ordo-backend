@@ -4,7 +4,6 @@ import { body, validationResult } from "express-validator"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import passport from "../utils/passport"
-
 export const signup = [
     //API request validations
     body("email")
@@ -94,8 +93,8 @@ export const login = [
 ]
 
 export const tokenRefresh = 
-    asyncHandler(async(req,res,next) => {
-        if(req.token) res.status(200).json({token: req.token})
+    asyncHandler(async(req ,res,next) => {
+        if(res.locals.token) res.status(200).json({token: res.locals.token})
         else res.status(400).json({message: "Invalid token"})
     })
     

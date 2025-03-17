@@ -14,11 +14,11 @@ const UserSchema = new Schema({
             end: { type: String, default:"0700" }
         },
         fixedTasks: [{
-            name: String,
-            day: { type: String, required:true,
-                enum:["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]},
-            start: { type: String, required:true },
-            end: { type: String, required:true },
+            name: {type: String, required:true, maxLength: 12},
+            day: [{ type: String, required:true,
+                enum:["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]}],
+            start: { type: String, required:true, minLength: 4, maxLength:4 },
+            end: { type: String, required:true, minLength: 4, maxLength:4 },
         }]
     },
     tasks: [{ type: Schema.Types.ObjectId, ref:"Task" }],

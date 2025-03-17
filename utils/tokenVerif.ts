@@ -37,9 +37,9 @@ export const verifyRefreshToken = async(req: Request,res: Response,next: NextFun
             {expiresIn: "24h"} 
         )
 
-        //Attach token and user on request
-        req.user = foundUser;
-        req.token = accessToken;
+        //Call next middleware with token
+        res.locals.token = accessToken;
+        res.locals.user = foundUser;
         next();
     } catch (err: any) {
         if (err.name === "TokenExpiredError") {

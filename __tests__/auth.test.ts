@@ -1,7 +1,6 @@
 import authRouter from "../routes/auth"
 import { setup } from "./testSetup"
 import User from "../models/user"
-
 import request from "supertest"
 import {Express, Request, Response, NextFunction} from "express"
 import { closeMongoServer, initializeMongoServer } from "./mongoSetup"
@@ -100,7 +99,7 @@ describe("Auth route tests", () => {
         // Create mock route to test token refresh as middleware
         app.post("/token", verifyRefreshToken,
             asyncHandler(async (req: Request,res: Response, next: NextFunction) => {
-                res.status(200).json({token: req.token})
+                res.status(200).json({token: res.locals.token})
             })
         )
 

@@ -15,7 +15,7 @@
   "main": "server.ts",
   "scripts": {
     "start": "node ./dist/app.js",
-    "test": "jest --watchAll",
+    "test": "jest --config=jest.config.ts --watchAll",
     "server": "nodemon ./app.ts",
     "build": "tsc"
   },

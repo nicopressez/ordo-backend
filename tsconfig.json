@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        "typeRoots": ["./node_modules/@types", "./types"],
+        "types": ["node", "express"],
         "module": "CommonJS",
         "moduleResolution": "Node",
         "target": "ES6",
@@ -8,5 +10,6 @@
         "strict": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true
-    }
+    },
+    "exclude": ["node_modules", "dist", "__tests__", "**/*.spec.ts"]
 }

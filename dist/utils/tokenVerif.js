@@ -34,9 +34,8 @@ const verifyRefreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0,
         }
         //Generate new token
         const accessToken = jsonwebtoken_1.default.sign({ user: foundUser, iat: Date.now() }, process.env.SECRET, { expiresIn: "24h" });
-        //Attach token and user on request
-        req.user = foundUser;
-        req.token = accessToken;
+        //Call next middleware with token
+        res.locals.token = accessToken;
         next();
     }
     catch (err) {
