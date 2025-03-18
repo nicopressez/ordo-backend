@@ -10,8 +10,8 @@ const UserSchema = new Schema({
     schedules: [{ type: Schema.Types.ObjectId, ref: "Schedule" }],
     preferences: {
         sleep: {
-            start: { type: String, default:"2300" },
-            end: { type: String, default:"0700" }
+            start: { type: String, default:"2300", match:/^\d{4}$/ },
+            end: { type: String, default:"0700", match: /^\d{4}$/ }
         },
         fixedTasks: [{
             name: {type: String, required:true, maxLength: 12},

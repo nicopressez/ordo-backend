@@ -9,6 +9,7 @@ import morgan from "morgan"
 
 import authRouter from "./routes/auth"
 import userRouter from "./routes/user"
+import taskRouter from "./routes/task"
 
 const port = process.env.PORT || 3000
 
@@ -40,7 +41,8 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-app.use("/auth", authRouter)
-app.use("/user", userRouter)
+app.use("/auth", authRouter);
+app.use("/user", userRouter);
+app.use("/task", taskRouter);
 
 
