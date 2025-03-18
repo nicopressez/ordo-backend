@@ -1,4 +1,4 @@
-import {Express, Request, Response, NextFunction} from "express"
+import {Express} from "express"
 import { setup } from "./testSetup"
 import { closeMongoServer, initializeMongoServer } from "./mongoSetup"
 import userRouter from "../routes/user"
@@ -6,6 +6,7 @@ import authRouter from "../routes/auth"
 import request from "supertest"
 import { jwtDecode } from "jwt-decode"
 import bcrypt from "bcryptjs"
+import User from "../models/user"
 
 
 let app : Express;
@@ -144,5 +145,32 @@ describe("User route tests", () => {
         //Compare new password to confirm change
         const passwordCheck = await bcrypt.compare("newpassword", updatedUser.password)
         expect(passwordCheck).toBeTruthy()
+    });
+    it("Deletes user on request", async() => {
+
+        //Login to get token and decrypt user info
+        const loginResponse = await request(app)
+            .post("/auth/login")
+            .set("Accept", "application/json")
+            .send({
+                "email": "test@email.com",
+                "password": "newpassword",
+            })
+
+        const token = loginResponse.body.token;
+        const initialUser = jwtDecode<{user:any}>(token).user 
+
+        const response = await request(app)
+            .delete("/user")
+            .set("Accept", "application/json")
+            .set("authorization", `Bearer ${token}`)
+            .send({});
+
+        expect(response.status).toBe(200)
+
+        //Check if user no longer exists in DB
+        const deletedUser = await User.findById(initialUser._id)
+        expect(deletedUser).toBeFalsy();
+
     })
 })

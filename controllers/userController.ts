@@ -128,6 +128,10 @@ export const updateUser = [
     })
 ];
 
-export const deleteUser = [
+export const deleteUser = asyncHandler(async(req,res,next) => {
+    const user = await User.findByIdAndDelete(res.locals.user._id)
 
-];
+    if(!user) res.status(404).json({response:"No user found to delete with id" + res.locals.user._id})
+
+    res.status(200).json({message : "User deleted"});
+}) 
