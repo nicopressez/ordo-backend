@@ -1,6 +1,6 @@
 import express from 'express';
 import * as userController from "../controllers/userController"
-import { verifyRefreshToken } from '../utils/tokenVerif';
+import { verifyRefreshToken, verifyToken } from '../utils/tokenVerif';
 
 const router = express.Router();
 
@@ -8,11 +8,11 @@ router.get("/", async(req,res,next) => {
     res.status(200).json({message: "User route"})
 });
 
-router.put("/preferences", verifyRefreshToken, userController.updatePreferences)
+router.put("/preferences", verifyToken, userController.updatePreferences)
 
-router.put("/", verifyRefreshToken, userController.updateUser);
+router.put("/:id", verifyToken, userController.updateUser);
 
-router.delete("/", verifyRefreshToken, userController.deleteUser);
+router.delete("/", verifyToken, userController.deleteUser);
 
 export default router;
 

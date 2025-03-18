@@ -4,6 +4,8 @@ import { closeMongoServer, initializeMongoServer } from "./mongoSetup"
 import userRouter from "../routes/user"
 import authRouter from "../routes/auth"
 import request from "supertest"
+import { jwtDecode } from "jwt-decode"
+import bcrypt from "bcryptjs"
 
 
 let app : Express;
@@ -64,8 +66,8 @@ describe("User route tests", () => {
                 ]
             });
 
-        const updatedUser = updateUserResponse.body.user;
         const updatedToken = updateUserResponse.body.token;
+        const updatedUser = jwtDecode<{user:any}>(updatedToken).user
 
         //Check if user info was updated and if token was refreshed
         expect(updatedUser.preferences.sleep.start).toEqual("0000");
@@ -104,7 +106,43 @@ describe("User route tests", () => {
                 ]
             });
 
-        //Body validation should catch the missing name and return an error
+            //Body validation should catch the missing name and return an error
         expect(updateUserResponse.status).toBe(400)
+    });
+    it("Updates user info on put request", async() => {
+        //Login to get token and decrypt user info
+        const loginResponse = await request(app)
+            .post("/auth/login")
+            .set("Accept", "application/json")
+            .send({
+                "email": "test@email.com",
+                "password": "password",
+            })
+
+        const token = loginResponse.body.token;
+        const initialUser = jwtDecode<{user:any}>(token).user 
+
+        //Request password and name change
+        const updateUserResponse = await request(app)
+            .put(`/user/${initialUser._id}`)
+            .set("Accept", "application/json")
+            .set("authorization", `Bearer ${token}`)
+            .send({
+                "email": "test@email.com",
+                "name": "Jane",
+                "password": "password",
+                "newPassword": "newpassword",
+            });
+
+        //Fetch user data from decoded token
+        const updatedToken = updateUserResponse.body.token;
+        const updatedUser = jwtDecode<{user:any}>(updatedToken).user;
+
+        expect(updatedUser.name).toEqual("Jane");
+        expect(token).not.toEqual(updatedToken)
+
+        //Compare new password to confirm change
+        const passwordCheck = await bcrypt.compare("newpassword", updatedUser.password)
+        expect(passwordCheck).toBeTruthy()
     })
 })

@@ -9,6 +9,40 @@ interface JwtPayload {
         name: string
     }
 }
+
+export const verifyToken = async(req: Request,res: Response,next: NextFunction) => {
+    try {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader?.split(" ")[1];
+
+        if(!token)  {
+            res.status(401).json({message: "No token provided"});
+            return;
+        }
+        //Verify token validity
+        const decoded = jwt.verify(token, process.env.SECRET as string) as JwtPayload;
+        const foundUser = await User.findById(decoded.user._id);
+
+        if(!foundUser) {
+             res.status(404).json({
+                message: "No user found with token", user:decoded.user._id
+            });
+            return;
+        }
+
+        //Call next middleware with token && userInfo
+        res.locals.token = token;
+        res.locals.user = foundUser;
+        next();
+    } catch (err: any) {
+        if (err.name === "TokenExpiredError") {
+            res.status(401).json({ message: "Token expired" });
+            return;    
+        }
+        res.status(401).json({ message: "Invalid token" });
+        return;
+    }
+}
 export const verifyRefreshToken = async(req: Request,res: Response,next: NextFunction) => {
     try {
         const authHeader = req.headers['authorization'];
