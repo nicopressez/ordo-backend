@@ -12,17 +12,13 @@ const TaskSchema = new Schema({
     deadline: {type:Date},
 
     scheduledSessions: [{
-        day: {type: String, 
-            enum: [["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]]},
-            startTime:{type: String, match: /^\d{4}$/},
-            duration:{type: Number}
+            startTime:{type: Date, required:true},
+            duration:{type: Number, required:true}
     }],
 
     completedSessions: [{
-        weekNumber: {type: Number},
-        day: {type: String},
-        startTime: {type: String, match: /^\d{4}$/},
-        duration: {type: Number}
+            startTime: {type: Date, required:true},
+            duration: {type: Number, required:true }
     }]
 }, {timestamps: true});
 
