@@ -1,6 +1,6 @@
 import express from 'express';
 import * as taskController from "../controllers/taskController"
-import { verifyRefreshToken } from '../utils/tokenVerif';
+import { verifyRefreshToken, verifyToken } from '../utils/tokenVerif';
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ router.get("/", verifyRefreshToken, taskController.getAllTasks);
 router.get("/:id", verifyRefreshToken, taskController.getTask);
 
 //Create a new task
-router.post("/",verifyRefreshToken, taskController.createTask);
+router.post("/",verifyToken, taskController.createTask);
 
 //Update a task
 router.put("/",verifyRefreshToken,  taskController.updateTask);
