@@ -1,4 +1,4 @@
-import mongoose, { InferSchemaType } from "mongoose";
+import mongoose, { InferSchemaType, Types } from "mongoose";
 
 const Schema = mongoose.Schema
 
@@ -22,6 +22,5 @@ const TaskSchema = new Schema({
     }]
 }, {timestamps: true});
 
-export type TaskType = InferSchemaType<typeof TaskSchema>
-
+export type TaskType = InferSchemaType<typeof TaskSchema> & {_id: Types.ObjectId}
 export default mongoose.model("Task", TaskSchema)

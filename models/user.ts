@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose, { InferSchemaType, Types } from "mongoose"
 
 const Schema = mongoose.Schema
 
@@ -25,4 +25,5 @@ const UserSchema = new Schema({
 }, { timestamps: true } 
 );
 
+export type UserType = InferSchemaType<typeof UserSchema> & {_id: Types.ObjectId}
 export default mongoose.model("User", UserSchema)
