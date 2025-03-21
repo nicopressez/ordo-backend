@@ -15,10 +15,9 @@ const UserSchema = new Schema({
         },
         fixedTasks: [{
             name: {type: String, required:true, maxLength: 12},
-            day: [{ type: String, required:true,
-                enum:["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]}],
-            start: { type: String, required:true, minLength: 4, maxLength:4 },
-            end: { type: String, required:true, minLength: 4, maxLength:4 },
+            day:[{type: Number, required:true,  min: 0, max: 6}], //Day in number 0-6
+            start: { type: Number, min: 0, max: 1439 },
+            end: { type: Number, min: 0, max: 1439 },
         }]
     },
     tasks: [{ type: Schema.Types.ObjectId, ref:"Task" }],

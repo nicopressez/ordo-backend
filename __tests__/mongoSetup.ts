@@ -7,22 +7,20 @@ export const initializeMongoServer = async() => {
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
 
-    mongoose.connect(mongoUri);
+    try {
+        await mongoose.connect(mongoUri);
 
-    mongoose.connection.on("error", e => {
-        if (e.message.code === "ETIMEDOUT") {
-            console.log(e);
-            mongoose.connect(mongoUri)
-        }
-        console.log(e)
-    }) 
+        console.log("MongoDB Connected Successfully!");
+    } catch (error) {
+        console.error("MongoDB Connection Error:", error);
+        throw error; // Fail the test immediately if connection fails
+    };
 
-    mongoose.connection.once("open", () => {})
-}
+};
 
 export const closeMongoServer = async() => {
     if (mongoServer) {
     await mongoose.disconnect();
     await mongoServer.stop()
     }
-}
+};

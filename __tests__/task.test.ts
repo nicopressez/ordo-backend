@@ -1,11 +1,9 @@
-import {Express} from "express"
+ import {Express} from "express"
 import { setup } from "./testSetup"
 import { closeMongoServer, initializeMongoServer } from "./mongoSetup"
 import authRouter from "../routes/auth"
 import taskRouter from "../routes/task"
 import request from "supertest"
-import User from "../models/user"
-import Task from "../models/Tasks"
 
 
 let app : Express;
@@ -13,7 +11,7 @@ let app : Express;
 describe("Task route tests", () => {
     beforeAll(async() => {
         app = setup();
-        await initializeMongoServer();
+        await initializeMongoServer()
         app.use("/auth", authRouter);
         app.use("/task", taskRouter);
     });
@@ -21,7 +19,7 @@ describe("Task route tests", () => {
         await closeMongoServer();
     });
 
- /*   it("Creates tasks with new user", async() => {
+   it("Creates tasks with new user", async() => {
         const createUserResponse = await request(app)
                 .post("/auth/signup")
                 .set("Accept", "application/json")
@@ -54,5 +52,5 @@ describe("Task route tests", () => {
                 
         expect(createTaskResponse.status).toBe(200)
     });
-*/
+
 })

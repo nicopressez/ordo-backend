@@ -8,13 +8,11 @@ import jwt from "jsonwebtoken"
 export const updatePreferences = [
     // API request validation
     body("sleepStart")
-        .isString()
-        .isLength({min: 4, max:4})
-        .withMessage("Sleep starting time is incorrect, should be in HHMM format."),
+        .isInt({min:0, max:1439})
+        .withMessage("Sleep starting time is incorrect, should be an integer."),
     body("sleepEnd")
-        .isString()
-        .isLength({min: 4, max:4})
-        .withMessage("Sleep ending time is incorrect, should be in HHMM format."),
+        .isInt({min:0, max:1439})
+        .withMessage("Sleep ending time is incorrect, should be an integer."),
     body("fixedTasks")
         .isArray()
         .withMessage("Fixed tasks is not an array."),
@@ -26,17 +24,14 @@ export const updatePreferences = [
     body("fixedTasks.*.day")
         .isArray()
         .withMessage("Days must be an array of strings")
-        .custom((days: string[]) => {
-            const validDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-            return days.every(day => validDays.includes(day))
+        .custom((days: number[]) => {
+            return days.every(day => day >= 0 && day <= 6)
         }),
     body("fixedTasks.*.start")
-        .isString()
-        .isLength({min: 4, max: 4})
+        .isInt({min:0, max:1439})
         .withMessage("Incorrect time provided for a fixed task's start"),
     body("fixedTasks.*.end")
-        .isString()
-        .isLength({min: 4, max: 4})
+        .isInt({min:0, max:1439})    
         .withMessage("Incorrect time provided for a fixed task's end"),
 
     asyncHandler(async(req,res,next) => {

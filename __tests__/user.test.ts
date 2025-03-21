@@ -8,13 +8,12 @@ import { jwtDecode } from "jwt-decode"
 import bcrypt from "bcryptjs"
 import User from "../models/user"
 
-
 let app : Express;
 
 describe("User route tests", () => {
     beforeAll(async() => {
         app = setup();
-        await initializeMongoServer();
+        await initializeMongoServer()
         app.use("/user", userRouter);
         app.use("/auth", authRouter)
     });
@@ -49,20 +48,20 @@ describe("User route tests", () => {
             .set("Accept", "application/json")
             .set("authorization", `Bearer ${token}`)
             .send({
-                "sleepStart": "0000",
-                "sleepEnd": "0800",
+                "sleepStart": 1290,
+                "sleepEnd": 480,
                 "fixedTasks": [
                     {
                     "name": "Gym",
-                    "day": ["Monday", "Wednesday", "Friday"],
-                    "start": "1800",
-                    "end": "1930"
+                    "day": [0, 3, 5],
+                    "start": 180,
+                    "end": 360
                     },
                     {
                     "name": "Study",
-                    "day": ["Tuesday", "Thursday"],
-                    "start": "2000",
-                    "end": "2200"
+                    "day": [2,4],
+                    "start": 200,
+                    "end": 240
                     }
                 ]
             });
@@ -71,7 +70,7 @@ describe("User route tests", () => {
         const updatedUser = jwtDecode<{user:any}>(updatedToken).user
 
         //Check if user info was updated and if token was refreshed
-        expect(updatedUser.preferences.sleep.start).toEqual("0000");
+        expect(updatedUser.preferences.sleep.start).toEqual(1290);
         expect(updatedUser.preferences.fixedTasks[0].name).toEqual("Gym");
         expect(updatedToken).not.toEqual(token);
     });
@@ -95,14 +94,14 @@ describe("User route tests", () => {
             .set("Accept", "application/json")
             .set("authorization", `Bearer ${token}`)
             .send({
-                "sleepStart": "0000",
-                "sleepEnd": "0800",
+                "sleepStart": 1290,
+                "sleepEnd": 480,
                 "fixedTasks": [
                     {
                         // Missing name in request
-                    "day": ["Monday", "Wednesday", "Friday"],
-                    "start": "1800",
-                    "end": "1930"
+                    "day": [1, 3, 5],
+                    "start": 180,
+                    "end": 360,
                     },
                 ]
             });
