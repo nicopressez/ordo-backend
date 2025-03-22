@@ -4,6 +4,44 @@ import { body, validationResult } from "express-validator";
 import User from "../models/user";
 import jwt from "jsonwebtoken"
 
+interface sessionType {
+    startTime: Date;
+    duration: number;
+}
+
+//Return this weeks Monday and today's date 
+const getWeekdays = () => {
+    const today = new Date();
+    const day = today.getDay();
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(today);
+    monday.setDate(diff);
+    monday.setHours(0,0,0,0);
+
+    return {today, monday}
+};
+
+//Calculate progress this week for a task
+const getTaskProgress = (allSessions: sessionType[]) => {
+    const days = getWeekdays();
+    let completedHours = 0;
+        let totalHours = 0;
+        let active = true;
+
+    allSessions.forEach(session => {
+        const sessionDate = new Date(session.startTime)
+        if(sessionDate >= days.monday && sessionDate <= days.today) {
+            completedHours += session.duration;
+        };
+        if(sessionDate >= days.monday) {
+            totalHours += session.duration;
+        } else {
+            active = false;
+        };
+    })
+    return {completedHours,totalHours,active}
+}
+
 export const getAllTasks = asyncHandler(async(req, res, next) => {
  const tasks = await Task.find({
         userId: res.locals.user._id}, 
@@ -12,34 +50,17 @@ export const getAllTasks = asyncHandler(async(req, res, next) => {
 
     if(!tasks) res.status(404).json({message: "No tasks found", token: res.locals.token})
 
-    //Set this weeks Monday and today's date
-    const today = new Date();
-    const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-    const monday = new Date(today);
-    monday.setDate(diff);
-    monday.setHours(0,0,0,0);
-
+    const days = getWeekdays();
     //Get tasks with progress in hours from this week
     const tasksWithProgress = tasks.map(task => {
-        let completedHours = 0;
-        let totalHours = 0;
-
-        task.scheduledSessions?.map((session) => {
-        // Add hours already completed this week
-        const sessionDate = new Date(session.startTime)
-        if(sessionDate >= monday && sessionDate <= today) {
-            completedHours += session.duration
-        };
-        // Add to total hours scheduled this week
-        totalHours += session.duration
-        })
+      const {completedHours, totalHours, active} = getTaskProgress(task.scheduledSessions)
       return {
         _id: task._id,
         name: task.name,
         duration: task.duration,
         completedHours,
-        totalHours
+        totalHours,
+        active
       }
     });
     res.status(200).json({tasks: tasksWithProgress, token: res.locals.token})
@@ -47,7 +68,23 @@ export const getAllTasks = asyncHandler(async(req, res, next) => {
 
 
 export const getTask = [
-    // Fetch all info on one task + completed sessions and completed hours
+    asyncHandler(async(req,res,next) => {
+        const task = await Task.findById(req.params.id);
+
+        if(!task) {
+            res.status(404).json({message: "No task found", token: res.locals.token})
+        } else {
+        //Calculate progress and add to task info
+        const {completedHours, totalHours, active} = getTaskProgress(task.scheduledSessions)
+        const taskWithProgress = {
+            ...task,
+            completedHours,
+            totalHours,
+            active
+        }
+        res.status(200).json({task: taskWithProgress, token: res.locals.token})
+        }
+    })
 
 ];
 

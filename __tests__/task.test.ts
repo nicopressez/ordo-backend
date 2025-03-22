@@ -6,7 +6,7 @@ import taskRouter from "../routes/task"
 import request from "supertest"
 import { jwtDecode } from "jwt-decode"
 import { UserType } from "../models/user"
-import Task from "../models/Tasks"
+import Task, { TaskType } from "../models/Tasks"
 
 
 let app : Express;
@@ -107,12 +107,35 @@ describe("Task route tests", () => {
             .set("authorization", `Bearer ${token}`)
             .send()
 
-        const tasks = getTasksResponse.body.tasks; getTasksResponse.body.tasks
+        const tasks = getTasksResponse.body.tasks;
         expect(tasks[0]._id).toEqual(user.tasks[0]);
         expect(tasks[0].completedHours).toEqual(2);
         expect(tasks[0].totalHours).toEqual(5);
         expect(tasks[1].name).toEqual("Learn Turkish");
+    });
+    it("Gets one task with completed hours", async() => {
+        const loginResponse = await request(app)
+            .post("/auth/login")
+            .set("Accept", "application/json")
+            .send({
+                    "email": "testuser@email.com",
+                    "password": "password",
+            });
 
+        const token = loginResponse.body.token
+        const user = jwtDecode<{user:UserType}>(token).user;
+
+        const task : any = await Task.findOne({userId: user._id, name: "Learn Italian"}).exec()
+        
+        const getTaskResponse = await request(app)
+            .get(`/task/${task._id}`)
+            .set("authorization", `Bearer ${token}`)
+            .send()
+
+        const taskWithProgress = getTaskResponse.body.task
+        expect(taskWithProgress.completedHours).toEqual(2);
+        expect(taskWithProgress.totalHours).toEqual(5);
+        expect(taskWithProgress.active).toBe(true);
     })
 
 })
