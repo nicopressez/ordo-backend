@@ -12,19 +12,19 @@ router.get("/:id", verifyRefreshToken, taskController.getTask);
 router.post("/",verifyToken, taskController.createTask);
 
 //Update a task
-router.put("/",verifyRefreshToken,  taskController.updateTask);
+router.put("/:id",verifyRefreshToken,  taskController.updateTask);
 
 //Delete a task
-router.delete("/", verifyRefreshToken, taskController.deleteTask);
+router.delete("/:id", verifyRefreshToken, taskController.deleteTask);
 
 //Get task history
 router.get("/:id/history", taskController.getTaskHistory);
 
 //Scheduled sessions CRUD actions
-router.get("/:id/scheduled-sessions", taskController.getTaskScheduledSessions);
-router.post("/:id/scheduled-sessions", taskController.createScheduledSessions);
-router.put("/:id/scheduled-sessions", taskController.updateScheduledSessions);
-router.delete("/:id/scheduled-sessions", taskController.deleteScheduledSessions);
+router.get("/:id/scheduled-sessions", verifyRefreshToken , taskController.getTaskScheduledSessions);
+router.post("/:id/scheduled-sessions",  verifyRefreshToken, taskController.createScheduledSessions);
+router.put("/:id/scheduled-sessions", verifyRefreshToken, taskController.updateScheduledSessions);
+router.delete("/:id/scheduled-sessions", verifyRefreshToken, taskController.deleteScheduledSessions);
 
 
 export default router;

@@ -136,6 +136,77 @@ describe("Task route tests", () => {
         expect(taskWithProgress.completedHours).toEqual(2);
         expect(taskWithProgress.totalHours).toEqual(5);
         expect(taskWithProgress.active).toBe(true);
+    });
+    it("Updates a task", async() => {
+        const loginResponse = await request(app)
+            .post("/auth/login")
+            .set("Accept", "application/json")
+            .send({
+                    "email": "testuser@email.com",
+                    "password": "password",
+            });
+
+        const token = loginResponse.body.token
+        const user = jwtDecode<{user:UserType}>(token).user;
+
+        const task : any = await Task.findOne({userId: user._id, name: "Learn Italian"}).exec()
+
+        const updateTaskResponse = await request(app)
+            .put(`/task/${task._id}`)
+            .set("authorization", `Bearer ${token}`)
+            .set("Accept", "application/json")
+            .send({
+                "duration": 8,
+                "priority": 2,
+                "description": "Getting to B2 level"
+            })
+
+        const responseTask = updateTaskResponse.body.task
+        expect(responseTask.name).toBe("Learn Italian");
+        expect(responseTask.duration).toBe(8);
+        expect(responseTask.priority).toBe(2);
+    })
+    it("Deletes a task", async() => {
+        const loginResponse = await request(app)
+            .post("/auth/login")
+            .set("Accept", "application/json")
+            .send({
+                    "email": "testuser@email.com",
+                    "password": "password",
+            });
+
+        const token = loginResponse.body.token
+        const user = jwtDecode<{user:UserType}>(token).user;
+
+        const task : any = await Task.findOne({userId: user._id, name: "Learn Turkish"}).exec()
+
+        const deleteResponse = await request(app)
+            .delete(`/task/${task._id}`)
+            .set("authorization", `Bearer ${token}`)
+            .send({});
+
+        expect(deleteResponse.status).toBe(200);
+        const deletedTask = await Task.findById(task._id)
+        expect(deletedTask).toBeFalsy();
+    });
+    it("Returns scheduled sessions for a task", async() => {
+        const loginResponse = await request(app)
+            .post("/auth/login")
+            .set("Accept", "application/json")
+            .send({
+                    "email": "testuser@email.com",
+                    "password": "password",
+            });
+
+        const token = loginResponse.body.token
+        const user = jwtDecode<{user:UserType}>(token).user;
+
+        const task : any = await Task.findOne({userId: user._id, name: "Learn Italian"}).exec();
+
+        const scheduleResponse = await request(app)
+            .get(`/task/${task._id}/scheduled-sessions`)
+            .set("authorization", `Bearer ${token}`)
+            .send()
     })
 
 })

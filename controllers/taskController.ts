@@ -67,7 +67,7 @@ export const getAllTasks = asyncHandler(async(req, res, next) => {
 })
 
 
-export const getTask = [
+export const getTask = 
     asyncHandler(async(req,res,next) => {
         const task = await Task.findById(req.params.id);
 
@@ -84,9 +84,7 @@ export const getTask = [
         }
         res.status(200).json({task: taskWithProgress, token: res.locals.token})
         }
-    })
-
-];
+    });
 
 export const createTask = [
     //API request validation
@@ -161,12 +159,69 @@ export const createTask = [
 ];
 
 export const updateTask = [
+    //API request validation
+    body("name")
+        .optional()
+        .isString()
+        .isLength({min:1, max:40})
+        .withMessage("Name must be between 1 and 40 characters long"),
+    body("duration")
+        .optional()
+        .isFloat({min:0.5})
+        .withMessage("Duration must be a valid float number"),
+    body("priority")
+        .optional()
+        .isInt({min:1, max:3})
+        .withMessage("Priority must be an integer between 1 and 3"),
+    body("recurrent")
+        .optional()
+        .isBoolean()
+        .withMessage("Missing task recurrence boolean"),
+    body("deadline")
+        .optional()
+        .isInt({min:0, max:6})
+        .withMessage("Deadline must be an integer from 0 to 6"),
+    body("maxHoursPerSession")
+        .optional()
+        .isFloat({min:0.5})
+        .withMessage("Max hours must be at least 0.5 and a valid float"),
+    body("description")
+        .optional()
+        .isString()
+        .withMessage("Description must be a valid string"),
 
+    asyncHandler(async(req,res,next) => {
+        //Validate request body
+        const errors = validationResult(req);
+        if(!errors.isEmpty()) {
+            res.status(400).json({errors: errors.array()});
+        };
+
+        //Update task based on body info
+        const body = req.body
+        const task = await Task.findByIdAndUpdate(req.params.id, {
+            ...body.name && {name: body.name},
+            ...body.description && {description: body.description},
+            ...body.duration && {duration: body.duration},
+            ...body.priority && {priority: body.priority},
+            ...body.maxHoursPerSession && {maxHoursPerSession : body.maxHoursPerSession},
+            ...body.deadline && {deadline: body.deadline},
+            ...body.recurrent && {recurrent: body.recurrent}
+        }, {new: true});
+
+        if(!task) res.status(404).json({message: "No task found"});
+
+        res.status(200).json({task, token: res.locals.token})
+    })
 ];
 
-export const deleteTask = [
+export const deleteTask = asyncHandler(async(req,res,next) => {
+    const task = await Task.findByIdAndDelete(req.params.id);
 
-]
+    if(!task) res.status(404).json({message: "No task found"});
+
+    res.status(200).json({message:"Task deleted successfully"});
+})
 
 export const getTaskHistory = [
 
