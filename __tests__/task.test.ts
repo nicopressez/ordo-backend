@@ -44,12 +44,14 @@ describe("Task route tests", () => {
                         {
                             "name": "Learn Italian",
                             "duration": 12,
-                            "priority": 3
+                            "priority": 3,
+                            "recurrent": true,
                         },
                         {
                             "name": "Learn Turkish",
                             "duration": 3,
-                            "priority": 2
+                            "priority": 2,
+                            "recurrent": true
                         }
                     ]
                        })
@@ -108,7 +110,8 @@ describe("Task route tests", () => {
         const tasks = getTasksResponse.body.tasks; getTasksResponse.body.tasks
         expect(tasks[0]._id).toEqual(user.tasks[0]);
         expect(tasks[0].completedHours).toEqual(2);
-        expect(tasks[1].name).toEqual("Learn Turkish")
+        expect(tasks[0].totalHours).toEqual(5);
+        expect(tasks[1].name).toEqual("Learn Turkish");
 
     })
 

@@ -22,19 +22,24 @@ export const getAllTasks = asyncHandler(async(req, res, next) => {
 
     //Get tasks with progress in hours from this week
     const tasksWithProgress = tasks.map(task => {
-        const completedHours = task.scheduledSessions
-        ?.filter((session) => {
-        // Check hours scheduled between this weeks Monday and today - completed hours
-        const sessionDate = new Date(session.startTime)
-        return sessionDate >= monday && sessionDate <= today;
-        // Sum completed hours
-        }).reduce((sum, session) => sum + session.duration, 0) || 0;
+        let completedHours = 0;
+        let totalHours = 0;
 
+        task.scheduledSessions?.map((session) => {
+        // Add hours already completed this week
+        const sessionDate = new Date(session.startTime)
+        if(sessionDate >= monday && sessionDate <= today) {
+            completedHours += session.duration
+        };
+        // Add to total hours scheduled this week
+        totalHours += session.duration
+        })
       return {
         _id: task._id,
         name: task.name,
         duration: task.duration,
-        completedHours
+        completedHours,
+        totalHours
       }
     });
     res.status(200).json({tasks: tasksWithProgress, token: res.locals.token})
@@ -58,13 +63,12 @@ export const createTask = [
     body("tasks.*.duration")
         .isFloat({min:0.5})
         .withMessage("Duration must be a valid float number"),
-    body("tasks.*.description")
-        .optional()
-        .isString()
-        .withMessage("Description must be a valid string"),
     body("tasks.*.priority")
         .isInt({min:1, max:3})
         .withMessage("Priority must be an integer between 1 and 3"),
+    body("tasks.*.recurrent")
+        .isBoolean()
+        .withMessage("Missing task recurrence boolean"),
     body("tasks.*.deadline")
         .optional()
         .isInt({min:0, max:6})
@@ -73,6 +77,10 @@ export const createTask = [
         .optional()
         .isFloat({min:0.5})
         .withMessage("Max hours must be at least 0.5 and a valid float"),
+    body("tasks.*.description")
+        .optional()
+        .isString()
+        .withMessage("Description must be a valid string"),
 
     asyncHandler(async(req,res,next) => {
         //Validate request
@@ -91,6 +99,7 @@ export const createTask = [
                 name: task.name,
                 priority: task.priority,
                 duration: task.duration,
+                recurrent: task.recurrent,
                 ...(task.description && {description: task.description}),
                 ...(task.maxHoursPerSession && {maxHoursPerSession: task.maxHoursPerSession}),
                 ...(task.deadline && {deadline: task.deadline}),
@@ -122,10 +131,6 @@ export const deleteTask = [
 
 ]
 
-export const updateTaskProgress = [
-
-];
-
 export const getTaskHistory = [
 
 ];
@@ -134,7 +139,15 @@ export const getTaskScheduledSessions = [
 
 ];
 
-export const resetWeeklyProgress = [
+export const createScheduledSessions = [
+
+]
+
+export const updateScheduledSessions = [
+
+];
+
+export const deleteScheduledSessions = [
 
 ];
 

@@ -10,7 +10,7 @@ const TaskSchema = new Schema({
     priority: {type: Number, min:1, max:3, default:1},
     maxHoursPerSession: {type: Number, min:0.5, default:3},
     deadline: {type:Number, min:0, max:6}, // Store deadline as day 0 to 6
-
+    recurrent: {type: Boolean, default:false},
     scheduledSessions: [{
             startTime:{type: Date, required:true},
             duration:{type: Number, required:true}
