@@ -12,6 +12,7 @@ const TaskSchema = new Schema({
     deadline: {type:Number, min:0, max:6}, // Store deadline as day 0 to 6
     recurrent: {type: Boolean, default:false},
     scheduledSessions: [{
+            _id: { type: Schema.Types.ObjectId, auto: true },
             startTime:{type: Date, required:true},
             duration:{type: Number, required:true}
     }],

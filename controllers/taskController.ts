@@ -220,26 +220,94 @@ export const deleteTask = asyncHandler(async(req,res,next) => {
 
     if(!task) res.status(404).json({message: "No task found"});
 
-    res.status(200).json({message:"Task deleted successfully"});
+    res.status(200).json({message:"Task deleted successfully", token: res.locals.token});
 })
 
-export const getTaskHistory = [
+export const getTaskScheduledSessions = asyncHandler(async(req,res,next) => {
+    const task = await Task.findById(req.params.id, "scheduledSessions");
 
-];
+    if (!task) res.status(404).json({message: "No task found"});
 
-export const getTaskScheduledSessions = [
-
-];
+    res.status(200).json({scheduledSessions: task?.scheduledSessions, token: res.locals.token})
+})
 
 export const createScheduledSessions = [
+    //API request validation
+    body("scheduledSessions")
+        .isArray({min:1})
+        .withMessage("Scheduled sessions must be a non-empty array"),
+    body("scheduledSessions.*.startTime")
+        .isISO8601().toDate()
+        .withMessage("Start date must be a date type"),
+    body("scheduledSessions.*.duration")
+        .isFloat()
+        .withMessage("Duration must be a valid float number"),
 
+    asyncHandler(async(req,res,next) => {
+        //Validate request
+        const errors = validationResult(req)
+        if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
+
+        const updatedTask = await Task.findByIdAndUpdate(req.params.id, {
+            $push: {scheduledSessions: req.body.scheduledSessions}
+        }, {new:true}).exec();
+
+        if(!updatedTask) res.status(404).json({message: "No task found"});
+
+        res.status(200).json({task: updatedTask, token: res.locals.token})
+    })
 ]
 
-export const updateScheduledSessions = [
+export const updateScheduledSession = [
+    //API request validation
+    body("startTime")
+        .isISO8601().toDate()
+        .withMessage("Start date must be a date type"),
+    body("duration")
+        .isFloat()
+        .withMessage("Duration must be a valid float number"),
+
+    asyncHandler(async(req,res,next) => {
+        //Validate request
+        const errors = validationResult(req);
+        if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
+
+        const updatedTask = await Task.findOneAndUpdate(
+            {_id: req.params.id, "scheduledSessions._id": req.params.sessionId}, 
+            {
+                $set: {
+                    "scheduledSessions.$.startTime": req.body.startTime,
+                    "scheduledSessions.$.duration": req.body.duration
+                }
+            }, {new:true});
+
+        if(!updatedTask) res.status(404).json({message: "No scheduled session or task found"})
+
+        res.status(200).json({task: updatedTask, token: res.locals.token})
+    })
+];
+
+export const deleteScheduledSession = [
+    asyncHandler(async(req,res,next) => {
+        const task = await Task.findOneAndUpdate({_id: req.params.id},{ 
+                $pull: {
+                    scheduledSessions: {
+                        _id: req.params.sessionId
+                    }
+                }
+            }, {new: true}
+        )
+        if (!task) res.status(404).json({message: "No task found"})
+        res.status(200).json({task, token: res.locals.token})
+        })
 
 ];
 
-export const deleteScheduledSessions = [
+export const completeSessions = [
+    
+]
 
+export const getTaskHistory = [
+//Return completed sessions per week "Mon 1st - Sun 7th: hoursworked - and then sessions"
 ];
 

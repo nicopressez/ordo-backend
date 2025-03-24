@@ -23,8 +23,8 @@ router.get("/:id/history", taskController.getTaskHistory);
 //Scheduled sessions CRUD actions
 router.get("/:id/scheduled-sessions", verifyRefreshToken , taskController.getTaskScheduledSessions);
 router.post("/:id/scheduled-sessions",  verifyRefreshToken, taskController.createScheduledSessions);
-router.put("/:id/scheduled-sessions", verifyRefreshToken, taskController.updateScheduledSessions);
-router.delete("/:id/scheduled-sessions", verifyRefreshToken, taskController.deleteScheduledSessions);
+router.put("/:id/scheduled-sessions/:sessionId", verifyRefreshToken, taskController.updateScheduledSession);
+router.delete("/:id/scheduled-sessions/:sessionId", verifyRefreshToken, taskController.deleteScheduledSession);
 
 
 export default router;
