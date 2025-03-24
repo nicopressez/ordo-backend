@@ -1,4 +1,4 @@
- import {Express} from "express"
+import {Express} from "express"
 import { setup } from "./testSetup"
 import { closeMongoServer, initializeMongoServer } from "./mongoSetup"
 import authRouter from "../routes/auth"
@@ -23,6 +23,22 @@ const getLoginAndTask = async() => {
     const task : any = await Task.findOne({userId: user._id, name: "Learn Italian"}).exec();
 
     return {loginResponse, token, user, task}
+};
+
+const getDays = () => {
+        //Get monday's date to compare
+        const today = new Date();
+        const day = today.getDay();
+        const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+    
+        const monday = new Date(today);
+        monday.setDate(diff);
+        monday.setHours(0, 0, 0, 0);
+
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1)
+
+        return{today, monday, tomorrow}
 }
 
 let app : Express;
@@ -97,17 +113,7 @@ describe("Task route tests", () => {
         const token = loginResponse.body.token
         const user = jwtDecode<{user:UserType}>(token).user;
 
-        //Get tomorrow and this week's Monday's date
-        const today = new Date();
-        const day = today.getDay();
-        const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-
-        const monday = new Date(today);
-        monday.setDate(diff);
-        monday.setHours(0, 0, 0, 0)
-
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1)
+        const {monday, tomorrow} = getDays();
 
         //Add a past scheduled session on Monday and future session tomorrow
         //To test completed hours
@@ -182,19 +188,12 @@ describe("Task route tests", () => {
             .set("authorization", `Bearer ${token}`)
             .send({})
 
-        //Get monday's date to compare
-        const today = new Date();
-        const day = today.getDay();
-        const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-
-        const monday = new Date(today);
-        monday.setDate(diff);
-        monday.setHours(0, 0, 0, 0)
+        const {monday} = getDays();
 
         expect(scheduleResponse.body.scheduledSessions[0].startTime).toEqual(monday.toISOString())
     })
     it("Creates scheduled sessions", async() => {
-        const {token, task} = await getLoginAndTask()
+        const {token, task} = await getLoginAndTask();
         
         const addSessionsResponse = await request(app)
             .post(`/task/${task._id}/scheduled-sessions`)
@@ -211,10 +210,10 @@ describe("Task route tests", () => {
         expect(addSessionsResponse.status).toBe(200);
         expect(updatedTask.scheduledSessions[2].duration).toBe(1);
     });
-    it("Updates a scheduled sessions" , async() => {
-        const {token, task} = await getLoginAndTask()
+    it("Updates a scheduled session" , async() => {
+        const {token, task} = await getLoginAndTask();
 
-        const sessionId = task.scheduledSessions[3]._id
+        const sessionId = task.scheduledSessions[2]._id;
 
         const updateSessionResponse = await request(app)
             .put(`/task/${task._id}/scheduled-sessions/${sessionId}`)
@@ -223,11 +222,41 @@ describe("Task route tests", () => {
             .send({
                 "startTime": new Date(),
                 "duration": 7
-            })
+            });
 
-        const updatedSession = updateSessionResponse.body.task.scheduledSessions[3];
+        const updatedSession = updateSessionResponse.body.task.scheduledSessions[2];
 
         expect(updatedSession.duration).toBe(7);
-    })
+    });
+    it("Deletes a schedule session", async() => {
+        const {token, task} = await getLoginAndTask();
+
+        const sessionId = task.scheduledSessions[2]._id;
+
+        const deleteSessionResponse = await request(app)
+            .delete(`/task/${task._id}/scheduled-sessions/${sessionId}`)
+            .set("Accept", "application/json")
+            .set("authorization", `Bearer ${token}`)
+            .send({});
+
+        const deletedSession = deleteSessionResponse.body.task.scheduledSessions[2];
+
+        expect(deletedSession).toBeFalsy();
+    });
+    it("Moves scheduled sessions to completed sessions", async() => {
+        const {token, task} = await getLoginAndTask();
+
+        const completeSessionsResponse = await request(app)
+            .put(`/task/${task._id}/completed-sessions`)
+            .set("Accept", "application/json")
+            .set("authorization", `Bearer ${token}`)
+            .send({});
+        
+        const updatedTask = completeSessionsResponse.body.task;
+
+        expect(updatedTask.scheduledSessions[0]).toBeFalsy();
+        expect(updatedTask.completedSessions[0].duration).toBe(2);
+    });
+
 
 })

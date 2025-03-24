@@ -50,7 +50,6 @@ export const getAllTasks = asyncHandler(async(req, res, next) => {
 
     if(!tasks) res.status(404).json({message: "No tasks found", token: res.locals.token})
 
-    const days = getWeekdays();
     //Get tasks with progress in hours from this week
     const tasksWithProgress = tasks.map(task => {
       const {completedHours, totalHours, active} = getTaskProgress(task.scheduledSessions)
@@ -287,27 +286,30 @@ export const updateScheduledSession = [
     })
 ];
 
-export const deleteScheduledSession = [
-    asyncHandler(async(req,res,next) => {
-        const task = await Task.findOneAndUpdate({_id: req.params.id},{ 
-                $pull: {
-                    scheduledSessions: {
-                        _id: req.params.sessionId
-                    }
+export const deleteScheduledSession = asyncHandler(async(req,res,next) => {
+    const task = await Task.findOneAndUpdate({_id: req.params.id},{ 
+            $pull: {
+                scheduledSessions: {
+                    _id: req.params.sessionId
                 }
-            }, {new: true}
-        )
-        if (!task) res.status(404).json({message: "No task found"})
-        res.status(200).json({task, token: res.locals.token})
-        })
+            }
+        }, {new: true}
+    )
+    if (!task) res.status(404).json({message: "No task found"})
+    res.status(200).json({task, token: res.locals.token})
+    });
 
-];
+export const completeSessions = asyncHandler(async(req,res,next) => {
+    const initialTask = await Task.findById(req.params.id)
 
-export const completeSessions = [
-    
-]
+    if(!initialTask) res.status(404).json({message: "No task found"})
+    const scheduledSessions = initialTask?.scheduledSessions
 
-export const getTaskHistory = [
-//Return completed sessions per week "Mon 1st - Sun 7th: hoursworked - and then sessions"
-];
+    const task = await Task.findByIdAndUpdate(req.params.id, {
+        $pullAll: {scheduledSessions},
+        $push :{completedSessions: scheduledSessions}
+    }, {new:true});
+
+    res.status(200).json({task, token: res.locals.token})
+})
 

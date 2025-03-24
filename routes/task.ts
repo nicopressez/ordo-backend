@@ -17,14 +17,14 @@ router.put("/:id",verifyRefreshToken,  taskController.updateTask);
 //Delete a task
 router.delete("/:id", verifyRefreshToken, taskController.deleteTask);
 
-//Get task history
-router.get("/:id/history", taskController.getTaskHistory);
-
 //Scheduled sessions CRUD actions
 router.get("/:id/scheduled-sessions", verifyRefreshToken , taskController.getTaskScheduledSessions);
 router.post("/:id/scheduled-sessions",  verifyRefreshToken, taskController.createScheduledSessions);
 router.put("/:id/scheduled-sessions/:sessionId", verifyRefreshToken, taskController.updateScheduledSession);
 router.delete("/:id/scheduled-sessions/:sessionId", verifyRefreshToken, taskController.deleteScheduledSession);
+
+//Move scheduled sessions to completed sessions
+router.put("/:id/completed-sessions", verifyRefreshToken, taskController.completeSessions)
 
 
 export default router;

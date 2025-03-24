@@ -5,7 +5,8 @@
       "/node_modules/",
       "/__tests__/testSetup.ts",
       "/__tests__/mongoSetup.ts"
-    ]
+    ],
+    "testTimeout": 50000
   },
   "modulePathIgnorePatterns": [
     "<rootDir>/node_modules/"
@@ -15,7 +16,7 @@
   "main": "server.ts",
   "scripts": {
     "start": "node ./dist/app.js",
-    "test": "jest --config=jest.config.ts --watchAll",
+    "test": "jest --config=jest.config.ts --watchAll ",
     "server": "nodemon ./app.ts",
     "build": "tsc"
   },

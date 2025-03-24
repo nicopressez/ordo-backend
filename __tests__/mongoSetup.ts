@@ -4,9 +4,7 @@ import { MongoMemoryServer } from "mongodb-memory-server"
 let mongoServer: MongoMemoryServer
 // Setup mock mongo server for tests
 export const initializeMongoServer = async() => {
-    mongoServer = await MongoMemoryServer.create(
-        {instance: { dbName: 'testDb', storageEngine: 'ephemeralForTest' }}
-    );
+    mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
 
     try {
@@ -21,10 +19,8 @@ export const initializeMongoServer = async() => {
 };
 
 export const closeMongoServer = async() => {
-    if (mongoose.connection.readyState !== 0) {
-        await mongoose.disconnect();
-    }
     if (mongoServer) {
-        await mongoServer.stop();
+    await mongoose.disconnect();
+    await mongoServer.stop()
     }
 };
